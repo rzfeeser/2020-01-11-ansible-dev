@@ -1,0 +1,16 @@
+[
+  {
+    "name": "A simple file playbook",
+    "hosts": "localhost",
+    "gather_facts": "yes",
+    "tasks": [
+      {
+        "name": "make a directory",
+        "file": {
+          "path": "~/output/",
+          "state": "directory"
+        }
+      }
+    ]
+  }
+]
