@@ -1,0 +1,22 @@
+---
+- name: First API example with Amazon S3 buckets (storage)
+  connection: local
+  hosts: localhost
+
+  vars:
+          hereorthere: present
+
+  vars_files:
+          - ~/cred.zon
+
+  tasks:
+          - name: Creating an S3 bucket on the zon
+            s3_bucket:
+                    name: "{{ item }}"
+                    state: "{{ hereorthere }}"
+                    aws_access_key: "{{ aws_access_key }}"
+                    aws_secret_key: "{{ aws_secret_key }}"
+            loop: 
+                    - conanthelibrarian29
+                    - ducktoaster77
+                    - snappytiger29
