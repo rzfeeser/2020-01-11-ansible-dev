@@ -11,7 +11,9 @@
           networktocreate: 192.168.200.0/24
           netcomment: this is my second IPv4 network
           reservationreason: ansibledev education
-          iptoreserve: 192.168.200.32
+          reserveiplist:
+            - 192.168.200.33
+            - 192.168.200.34
 
   vars_files:
           - vars/infoblox.creds   # contains nios_provider
@@ -37,10 +39,11 @@
           - name: Attempting an IPv4 reservation
             community.general.nios_fixed_address:
               name: ipv4_fixed
-              ipaddr: "{{ iptoreserve }}"
+              ipaddr: "{{ item }}"
               mac: 00:00:00:00:00:00
               network: "{{ networktocreate }}"
               network_view: default
               comment: "this port is reserved for {{ reservationreason }}"
               state: "{{ state }}"
               provider: "{{ nios_provider }}"
+            loop: "{{ reserveiplist }}"
