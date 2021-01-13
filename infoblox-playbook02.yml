@@ -1,0 +1,21 @@
+---
+- name: Starting to communicate with InfoBlox
+  hosts: localhost
+  connection: local
+
+  vars:
+          nios_provider:
+                  host: 192.168.70.65
+                  username: admin
+                  password: cowcow!
+
+  tasks:
+          - name: Attempting to create a network on the default network view
+            nios_network:
+                    network: 192.168.200.0/24
+                    comment: this is my second IPv4 network
+                    options:
+                            - name: domain-name
+                              value: campuswest.local
+                    state: present
+                    provider: "{{ nios_provider }}"
