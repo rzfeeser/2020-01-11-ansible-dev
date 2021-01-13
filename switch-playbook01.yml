@@ -1,8 +1,8 @@
 ---
 - name: Network Playbook to gather facts
-  hosts: arista
+  hosts: arista   # sw-1 and sw-2 (our hosts)
   gather_facts: no
-  connection: network_cli
+  connection: network_cli   # replace default ssh
 
   # these vars can be mapped other places
   # but need to be mapped for ansible to
@@ -19,6 +19,38 @@
     eos_facts:
       gather_subset: all
 
+  # display the facts collected by eos_facts
   - name: what sort of facts did we get?
     debug:
-            var: ansible_facts
+            #var: ansible_facts
+            msg: "{{ ansible_facts }}"
+            verbosity: 1
+
+  - name: just show the switch config
+    debug:
+            var: ansible_facts.net_config
+            verbosity: 1   # prevents debug from running unless -v is thrown at run time
+
+  - name: create a directory for storage
+    file:
+            state: directory
+            path: ~/ans/switch_backup
+    run_once: true
+
+  - name: get a timestamp of right now
+    command: "date"
+    register: result
+
+  - name: get a visual on result
+    debug:
+            var: result.stdout.split()
+            #verbosity: 1
+
+  - name: create a variable on the fly
+    set_fact:
+            dtlist: "{{ result.stdout.split() }}"
+
+  - name: write out our running config to local files
+    copy:
+            content: "{{ ansible_facts.net_config }}"
+            dest: "~/ans/switch_backup/{{ inventory_hostname }}.backup.{{ dtlist[-1] }}-{{ dtlist[1] }}-{{ dtlist[2] }}"
