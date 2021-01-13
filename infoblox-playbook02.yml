@@ -1,54 +1,49 @@
 ---
-- name: Starting to communicate with InfoBlox
+- name: DNS Zone, Network, and Host Play
   hosts: localhost
   connection: local
   gather_facts: no   # running against local host
 
   vars:
-          nios_provider:
-                  host: 192.168.70.65
-                  username: admin
-                  password: cowcow!
+          domain: campuswest.local
+          dcomment: local DNS zone
+          state: present
+          networktocreate: 192.168.200.0/24
+          netcomment: this is my second IPv4 network
+          host: hotfudge
+
+  vars_files:
+          - vars/infoblox.creds   # contains nios_provider
 
   tasks:
-          - name: Create a forward DNS zone called campuswest.local
+          - name: "Create a forward DNS zone called {{ domain }}"
             nios_zone:
-              name: campuswest.local
-              comment: local DNS zone
-              state: present
-              provider: "{{ nios_provider }}"
+              name: "{{ domain }}"
+              comment: "{{ dcomment }}"
+              state: "{{ state }}"
+              provider: "{{ nios_provider }}"    # credentials
   
           - name: Attempting to create a network on the default network view
             nios_network:
-                    network: 192.168.200.0/24
-                    comment: this is my second IPv4 network
+                    network: "{{ networktocreate }}"
+                    comment: "{{ netcomment }}"
                     options:
                             - name: domain-name
-                              value: campuswest.local
-                    state: present
+                              value: "{{ domain }}"
+                    state: "{{ state }}"
                     provider: "{{ nios_provider }}"
-                    
-                    
-          #- name: display what is returned from a lookup plugin
-          #  debug:
-          #      var: lookup('nios_next_ip', '192.168.200.0/24', num=5, provider=nios_provider)
+                          
+          - name: display what is returned from a lookup plugin
+            debug:
+                var: lookup('nios_next_ip', networktocreate, provider=nios_provider)
+                verbosity: 1
 
-          #- name: configure an IPv4 host record
-          #  nios_host_record:
-          #    name: hotfudge.campuswest.local
-          #    ipv4addrs:
-          #      - ipv4addr:
-          #          "{{ lookup('nios_next_ip', '192.168.200.0/24', provider=nios_provider)[0] }}"
-          #    state: present
-          #    provider: "{{nios_provider}}"
-          #    
-          - name: Attempting an IPv4 reservation
-            community.general.nios_fixed_address:
-              name: ipv4_fixed
-              ipaddr: 192.168.200.55
-              mac: 00:00:00:00:00:00
-              network: 192.168.200.0/24
-              network_view: default
-              comment: this port is reserved for awesome things
-              state: present
+          - name: "configure an IPv4 host record for {{ host }}.{{ domain }}"
+            nios_host_record:
+              name: "{{ host }}.{{ domain }}"
+              ipv4addrs:
+                - ipv4addr:
+                    "{{ lookup('nios_next_ip', networktocreate, provider=nios_provider)[0] }}"
+              state: "{{ state }}"
               provider: "{{nios_provider}}"
+              
