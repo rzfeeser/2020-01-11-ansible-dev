@@ -1,0 +1,26 @@
+---
+- name: Network Playbook to gather facts
+  hosts: arista   # sw-1 and sw-2 (our hosts)
+  gather_facts: no
+  connection: network_cli   # replace default ssh
+
+  # these vars can be mapped other places
+  # but need to be mapped for ansible to
+  # connect to Arista switches
+  vars:
+    ansible_network_os: eos   # this must match a value on https://docs.ansible.com/ansible/2.9/network/user_guide/platform_index.html#settings-by-platform
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: admin       # un of switch
+    ansible_ssh_pass: alta3   # pass of switch
+
+  tasks:
+  - name: configure the login banner
+    arista.eos.eos_banner:
+      banner: login
+      text: |
+        wow this was a great day
+        we started with a study of infoblox and their api
+        we ended with studying network_cli mode for switches
+        more of the same tomorrow!
+      state: absent #present
