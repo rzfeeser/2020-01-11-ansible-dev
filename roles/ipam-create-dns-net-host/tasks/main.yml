@@ -1,0 +1,34 @@
+---
+# tasks file for ipam-create-dns-net-host
+#
+- name: "Create a forward DNS zone called {{ domain }}"
+  nios_zone:
+    name: "{{ domain }}"
+    comment: "{{ dcomment }}"
+    state: "{{ state }}"
+    provider: "{{ nios_provider }}"    # credentials
+
+- name: Attempting to create a network on the default network view
+  nios_network:
+          network: "{{ networktocreate }}"
+          comment: "{{ netcomment }}"
+          options:
+                  - name: domain-name
+                    value: "{{ domain }}"
+          state: "{{ state }}"
+          provider: "{{ nios_provider }}"
+                
+- name: display what is returned from a lookup plugin
+  debug:
+      var: lookup('nios_next_ip', networktocreate, provider=nios_provider)
+      verbosity: 1
+
+- name: "configure an IPv4 host record for {{ host }}.{{ domain }}"
+  nios_host_record:
+    name: "{{ host }}.{{ domain }}"
+    ipv4addrs:
+      - ipv4addr:
+          "{{ lookup('nios_next_ip', networktocreate, provider=nios_provider)[0] }}"
+    state: "{{ state }}"
+    provider: "{{nios_provider}}"
+    

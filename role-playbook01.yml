@@ -1,0 +1,14 @@
+---
+- name: DNS Zone, Network, and Host Play
+  hosts: localhost
+  connection: local
+  gather_facts: no   # running against local host
+
+  # we want to overwrite the value of the var "domain" found within
+  # ipam-create-dns-net-host
+  vars:
+          domain: campuswest.local
+
+  # roles run before tasks
+  roles:
+          - ipam-create-dns-net-host
