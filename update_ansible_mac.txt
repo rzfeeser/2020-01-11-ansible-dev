@@ -1,0 +1,23 @@
+## Remove old or current Ansible using inverse method you used to install
+python -m pip uninstall ansible
+
+## is homebrew installed?
+brew doctor
+
+## if the above doesn't say you are ready to brew, then you need to install xcode-select so you may install homebrew
+xcode-select --install
+
+## now install homebrew
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+## you should be ready to brew potions
+brew doctor
+
+## install python3 with homebrew
+brew install python3
+
+## Install ansible
+python3 -m pip install --user ansible
+
+## Add this to your path /Users/rzfeeser/Library/Python/3.9/bin
+export PATH="/Users/rzfeeser/Library/Python/3.9/bin:$PATH"

@@ -1,0 +1,30 @@
+---
+- name: Playbook that runs a Perl script
+  hosts: localhost    # these would be the settings for infoblox API communcaiton
+  connection: local   # these would be the settings for infoblox API communciation
+
+  tasks:
+  - name: Copy script to target hosts and execute it
+    script: ~/ans/scripts/starWars.pl
+    args:
+      executable: /usr/bin/perl
+    register: results    # save the JSON sent back by our script
+    # delegate_to: localhost   # this is only necessary when you want the script
+                               # to run on the CONTROLLER, in a situation where you have
+                               # set:
+                               #
+                               # connection: ssh
+                               # hosts: linuxhosts
+                               #
+                               # When you are communicating with APIs (such as infoblox)
+                               # your connection will already be set to "local". Therefore,
+                               # there is no need for "deletegate_to: local"
+
+  - name: Print out the 'results'
+    debug:
+      var: results
+      # notice there is a stdout and stdout_lines
+
+  - name: Dispaly just the stdout produced by our script 'results.stdout'
+    debug:
+      var: results.stdout

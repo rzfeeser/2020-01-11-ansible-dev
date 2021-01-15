@@ -1,0 +1,61 @@
+---
+- name: Render and push config
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  ## file to store credentials mapped to provider
+  ## and file to store vars to render to template
+  vars_files:
+        - ~/panoscreds.yml
+
+  ## for simplicity, we'll map our jinja2 vars in
+  ## the playbook. In production, put these in vars_files
+  vars:
+        ip1: 1.1.1.1
+        ip2: 2.2.2.2
+        port1: 1812
+        port2: 1912
+        secret1: qwerty
+        secret2: ytrewq
+
+  ## call to the collection we installed
+  collection:
+        - paloaltonetworks.panos
+
+  tasks:
+
+        - name: Render template into config
+          template:
+            src: config.snippet.j2
+            dest: ~/ans/templates/rendered/config.snippet
+
+        - name: import configuration
+          panos_import:
+            ip_address: '{{ provider.ip_address }}'
+            username: '{{ provider.username }}'
+            password: '{{ provider.password }}'
+            file: ~/templates/rendered/config.snippet
+            category: 'configuration'
+          register: result
+
+        - name: load configuration
+          panos_loadcfg:
+            ip_address: '{{ provider.ip_address }}'
+            username: '{{ provider.username }}'
+            password: '{{ provider.password }}'
+            file: '{{result.filename}}'
+            commit: False
+
+        - name: set admin password
+          panos_administrator:
+            provider: '{{ provider }}'
+            admin_username: 'admin'
+            admin_password: '{{ provider.password }}'
+            superuser: True
+            commit: False
+
+        - name: commit (blocks until finished)
+          panos_commit:
+            provider: '{{ provider }}'
+
