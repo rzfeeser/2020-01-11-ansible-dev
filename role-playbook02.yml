@@ -1,0 +1,6 @@
+- name: try out one of my old roles
+  hosts: localhost
+  connection: local
+
+  roles: 
+     - rzfeeser.ansible_role_free_linux_term_games
